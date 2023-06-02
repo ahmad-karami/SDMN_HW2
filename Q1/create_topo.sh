@@ -1,3 +1,4 @@
+# create topology
 # build net namespace
 ip netns add ns1	
 ip netns add ns2
