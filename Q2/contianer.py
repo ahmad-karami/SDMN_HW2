@@ -3,7 +3,7 @@ import sys
 import os
 
 hostname = sys.argv[1]
-print(hostname)
+# print(hostname)
 
 # subprocess.call(['unshare', '-n', '-u', '-i', '-p', '-f', '-m', '-U'])
 
@@ -20,28 +20,38 @@ print(hostname)
     
 # subprocess.call(['hostnamectl', 'set-hostname', hostname])    
 
+def Root_Dir(hostname):
+    # make root directories  
+    subprocess.call(['mkdir',f'./{hostname}']) 
+    subprocess.call(['mkdir',f'./{hostname}/bin']) 
+    subprocess.call(['mkdir',f'./{hostname}/lib64']) 
+    subprocess.call(['mkdir',f'./{hostname}/lib'])
 
-subprocess.call(['mkdir','./jail']) 
-subprocess.call(['mkdir','./jail/bin']) 
-subprocess.call(['mkdir','./jail/lib64']) 
-subprocess.call(['mkdir','./jail/lib']) 
-# os.chdir('jail')
-# print(os.getcwd())
-subprocess.call(['cp' ,'/bin/bash', 'jail/bin'])
-subprocess.call(['cp' ,'/bin/ls', 'jail/bin'])
+    # copy bash and ls  and ip exec files
+    subprocess.call(['cp' ,'/bin/bash', f'{hostname}/bin'])
+    subprocess.call(['cp' ,'/bin/ls', f'{hostname}/bin'])
+    subprocess.call(['cp' ,'/bin/ip', f'{hostname}/bin'])
 
-# subprocess.call(['cp' ,'-v','/lib/x86_64-linux-gnu/libtinfo.so.6','jail/lib64'])
-# subprocess.call(['cp' ,'-v','/lib/x86_64-linux-gnu/libc.so.6','jail/lib64'])
+    # copy libraries needed for bash and ls
+    subprocess.call(['cp','/lib/x86_64-linux-gnu/libpcre2-8.so.0','/lib/x86_64-linux-gnu/libc.so.6','/lib/x86_64-linux-gnu/libselinux.so.1','/lib/x86_64-linux-gnu/libtinfo.so.6', f'{hostname}/lib'])
+    subprocess.call(['cp','/lib64/ld-linux-x86-64.so.2', f'{hostname}/lib64'])
+    
+    # copy libraries needed for ip
+    subprocess.call(['cp','/lib/x86_64-linux-gnu/libbpf.so.0','/lib/x86_64-linux-gnu/libelf.so.1','/lib/x86_64-linux-gnu/libmnl.so.0','/lib/x86_64-linux-gnu/libbsd.so.0', f'{hostname}/lib'])
+    subprocess.call(['cp','/lib/x86_64-linux-gnu/libcap.so.2','/lib/x86_64-linux-gnu/libz.so.1','/lib/x86_64-linux-gnu/libmd.so.0','/lib/x86_64-linux-gnu/libbsd.so.0', f'{hostname}/lib'])
 
-# subprocess.call(['cp' ,'-v','/lib/x86_64-linux-gnu/libselinux.so.1','jail/lib64'])
-# subprocess.call(['cp' ,'-v','/lib/x86_64-linux-gnu/libc.so.6','jail/lib64'])
-# subprocess.call(['cp' ,'-v','/lib/x86_64-linux-gnu/libpcre2-8.so.0','jail/lib64'])
+    subprocess.call(['chroot' ,f'{hostname}'])
 
-subprocess.call(['cp','/lib/x86_64-linux-gnu/libpcre2-8.so.0','/lib/x86_64-linux-gnu/libc.so.6','/lib/x86_64-linux-gnu/libselinux.so.1','/lib/x86_64-linux-gnu/libtinfo.so.6', 'jail/lib'])
-subprocess.call(['cp','/lib64/ld-linux-x86-64.so.2', 'jail/lib64'])
+# Root_Dir(hostname)
 
-subprocess.call(['chroot' ,'jail'])
-subprocess.call(['hostnamectl', 'set-hostname', hostname])
+def create_namespaces():
+    subprocess.run(['unshare', '--net'], check=True)
+    subprocess.run(['unshare', '--mount'], check=True)
+    subprocess.run(['unshare', '--pid'], check=True)
+    subprocess.run(['unshare', '--uts'], check=True)
+
+create_namespaces()
+#subprocess.call(['hostnamectl', 'set-hostname', hostname])
 
 
 
