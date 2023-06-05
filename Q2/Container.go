@@ -3,31 +3,28 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"syscall"
 )
 
 func main() {
-	// Container := os.Args[1]
-	print(os.Args[1])
 	switch os.Args[1] {
-	//case "run":
-	//namespace()
 	case "child":
-		child(os.Args[2])
+		child(os.Args[2], os.Args[3])
 	default:
 		Dir(os.Args[1])
 		namespace(os.Args[1])
 		// Container := os.Args[1]
-
 	}
 }
 
 func namespace(Container string) {
 	fmt.Printf("Running main %v as %d\n", os.Args[1:], os.Getpid())
-
+	fmt.Printf("arg1:%v\narg2:%v\n", os.Args[1], os.Args[2])
 	//fmt.Print(os.Args[0:])
 
 	//define command
@@ -48,11 +45,12 @@ func namespace(Container string) {
 
 }
 
-func child(Container string) {
+func child(Container string, M_max string) {
 	//for child founction i add an entity after main.go
 	// Container := "container"
 	fmt.Printf("Running child %v as %d\n", os.Args[1:], os.Getpid())
-
+	fmt.Printf("arg1:%v\narg2:%v\narg3:%v\n", os.Args[1], os.Args[2], os.Args[3])
+	Cgroup(M_max)
 	// change the host name
 	syscall.Sethostname([]byte(Container))
 
@@ -61,7 +59,7 @@ func child(Container string) {
 	syscall.Mount("proc", "proc", "proc", 0, "")
 	os.Setenv("PS1", "root@\\h:\\w$ ")
 	//define command
-	cmd := exec.Command("/bin/bash", os.Args[3:]...)
+	cmd := exec.Command("/bin/bash")
 	// [1:child,2:/bin/bash,3:empty]
 
 	// set the standard input, output, and error streams of the command
@@ -73,6 +71,20 @@ func child(Container string) {
 	cmd.Run()
 
 	syscall.Unmount("/proc", 0)
+
+}
+
+func Cgroup(M_max string) {
+	dir := "/sys/fs/cgroup/SDMN"
+	os.Mkdir(dir, 0755)
+	// M_mmax := strconv.Itoa(M_max)
+	// M_max := "20"
+	// fmt.Printf("arg1000:%v\n", M_max)
+
+	ioutil.WriteFile(filepath.Join(dir, "/pids.max"), []byte("20"), 0700)
+	ioutil.WriteFile(filepath.Join(dir+"/", "memory.max"), []byte(M_max+"M"), 0700)
+	ioutil.WriteFile(filepath.Join(dir, "/notify_on_release"), []byte("1"), 0700)
+	ioutil.WriteFile(filepath.Join(dir, "/cgroup.procs"), []byte(strconv.Itoa(os.Getpid())), 0700)
 
 }
 
