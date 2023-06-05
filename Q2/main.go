@@ -36,7 +36,9 @@ func namespace() {
 	cmd.Stderr = os.Stderr
 	// system-specific attributes for the process
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID,
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWNET,
+		// isolate namespaces
+		Unshareflags: syscall.CLONE_NEWNS,
 	}
 	// Run the command
 	cmd.Run()
@@ -79,12 +81,15 @@ func Dir() {
 	Lib := Container + "/lib"
 	Lib64 := Container + "/lib64"
 	Proc := Container + "/proc"
+	Home := Container + "/home"
 	// make directories
 	os.Mkdir(Container, 0777)
 	os.Mkdir(Bin, 0777)
 	os.Mkdir(Lib, 0777)
 	os.Mkdir(Lib64, 0777)
 	os.Mkdir(Proc, 0777)
+	os.Mkdir(Proc, 0777)
+	os.Mkdir(Home, 0777)
 
 	// exec files what we need in new root file system
 	Copy("/bin/bash", Bin)
@@ -116,7 +121,7 @@ func Dir() {
 	Copy("/lib/x86_64-linux-gnu/libc.so.6", Lib)
 	// Copy("", Lib)
 	Copy("/lib64/ld-linux-x86-64.so.2", Lib64)
-
+	Copy("~/.bashrc", Home)
 }
 
 func Copy(sourcePath string, destDir string) {
