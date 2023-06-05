@@ -57,12 +57,12 @@ def Root_Dir(hostname):
 # Root_Dir(hostname)
 
 def create_namespaces():
-    subprocess.run(['unshare', '--pid' ,'--net','--uts','--mount-proc','--fork','bash'])
-    subprocess.run(['hostname','ah'])
+    subprocess.run(['unshare', '--pid' ,'--net','--uts', '--map-root-user','--mount-proc','--fork','bash'])
 
 
-create_namespaces()
-# Root_Dir(hostname)
+
+# create_namespaces()
+Root_Dir(hostname)
 
 
 
