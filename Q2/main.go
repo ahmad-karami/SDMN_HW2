@@ -10,19 +10,22 @@ import (
 )
 
 func main() {
+	// Container := os.Args[1]
+	print(os.Args[1])
 	switch os.Args[1] {
 	//case "run":
 	//namespace()
 	case "child":
-		child()
+		child(os.Args[2])
 	default:
-		Dir()
-		namespace()
+		Dir(os.Args[1])
+		namespace(os.Args[1])
+		// Container := os.Args[1]
 
 	}
 }
 
-func namespace() {
+func namespace(Container string) {
 	fmt.Printf("Running main %v as %d\n", os.Args[1:], os.Getpid())
 
 	//fmt.Print(os.Args[0:])
@@ -45,9 +48,9 @@ func namespace() {
 
 }
 
-func child() {
+func child(Container string) {
 	//for child founction i add an entity after main.go
-	Container := "container"
+	// Container := "container"
 	fmt.Printf("Running child %v as %d\n", os.Args[1:], os.Getpid())
 
 	// change the host name
@@ -56,9 +59,9 @@ func child() {
 	syscall.Chroot(Container)
 	syscall.Chdir("/")
 	syscall.Mount("proc", "proc", "proc", 0, "")
-
+	os.Setenv("PS1", "root@\\h:\\w$ ")
 	//define command
-	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd := exec.Command("/bin/bash", os.Args[3:]...)
 	// [1:child,2:/bin/bash,3:empty]
 
 	// set the standard input, output, and error streams of the command
@@ -73,9 +76,9 @@ func child() {
 
 }
 
-func Dir() {
+func Dir(Container string) {
 
-	Container := "container"
+	// Container := "container"
 
 	Bin := Container + "/bin"
 	Lib := Container + "/lib"
