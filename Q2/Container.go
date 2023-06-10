@@ -73,10 +73,10 @@ func child(Container string, M_max string) {
 }
 
 func Cgroup(M_max string) {
-	dir := "/sys/fs/cgroup/SDMN"
-	os.Mkdir(dir, 0755)
 
-	ioutil.WriteFile(filepath.Join(dir, "/pids.max"), []byte("20"), 0700)
+	dir := "/sys/fs/cgroup/SDMN"
+
+	// ioutil.WriteFile(filepath.Join(dir, "/pids.max"), []byte("20"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/memory.max"), []byte(M_max+"M"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/notify_on_release"), []byte("1"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/cgroup.procs"), []byte(strconv.Itoa(os.Getpid())), 0700)
@@ -100,6 +100,21 @@ func Dir(Container string) {
 	os.Mkdir(Proc, 0777)
 	os.Mkdir(Proc, 0777)
 	os.Mkdir(Home, 0777)
+	// make it like ubuntu 20.04 file system
+	os.Mkdir(Container+"/dev", 0777)
+	os.Mkdir(Container+"/lib32", 0777)
+	os.Mkdir(Container+"/libx32", 0777)
+	os.Mkdir(Container+"/mnt", 0777)
+	os.Mkdir(Container+"/run", 0777)
+	os.Mkdir(Container+"/var", 0777)
+	os.Mkdir(Container+"/boot", 0777)
+	os.Mkdir(Container+"/etc", 0777)
+	os.Mkdir(Container+"/media", 0777)
+	os.Mkdir(Container+"/opt", 0777)
+	os.Mkdir(Container+"/root", 0777)
+	os.Mkdir(Container+"/sbin", 0777)
+	os.Mkdir(Container+"/sys", 0777)
+	os.Mkdir(Container+"/usr", 0777)
 
 	// exec files what we need in new root file system
 	Copy("/bin/bash", Bin)
@@ -107,6 +122,7 @@ func Dir(Container string) {
 	Copy("/bin/ip", Bin)
 	Copy("/bin/ps", Bin)
 	Copy("/bin/hostname", Bin)
+	Copy("/bin/sleep", Bin)
 
 	// library files for exec files
 	Copy("/lib/x86_64-linux-gnu/libpcre2-8.so.0", Lib)
@@ -128,7 +144,6 @@ func Dir(Container string) {
 	Copy("/lib/x86_64-linux-gnu/libgcrypt.so.20", Lib)
 	Copy("/lib/x86_64-linux-gnu/libgpg-error.so.0", Lib)
 	Copy("/lib/x86_64-linux-gnu/libsystemd.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libc.so.6", Lib)
 	// Copy("", Lib)
 	Copy("/lib64/ld-linux-x86-64.so.2", Lib64)
 	Copy("~/.bashrc", Home)
