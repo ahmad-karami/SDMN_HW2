@@ -24,8 +24,6 @@ func main() {
 
 func namespace(Container string) {
 	fmt.Printf("Running main %v as %d\n", os.Args[1:], os.Getpid())
-	fmt.Printf("arg1:%v\narg2:%v\n", os.Args[1], os.Args[2])
-	//fmt.Print(os.Args[0:])
 
 	//define command
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[1:]...)...)
@@ -49,7 +47,7 @@ func child(Container string, M_max string) {
 	//for child founction i add an entity after main.go
 	// Container := "container"
 	fmt.Printf("Running child %v as %d\n", os.Args[1:], os.Getpid())
-	fmt.Printf("arg1:%v\narg2:%v\narg3:%v\n", os.Args[1], os.Args[2], os.Args[3])
+
 	Cgroup(M_max)
 	// change the host name
 	syscall.Sethostname([]byte(Container))
@@ -77,12 +75,9 @@ func child(Container string, M_max string) {
 func Cgroup(M_max string) {
 	dir := "/sys/fs/cgroup/SDMN"
 	os.Mkdir(dir, 0755)
-	// M_mmax := strconv.Itoa(M_max)
-	// M_max := "20"
-	// fmt.Printf("arg1000:%v\n", M_max)
 
 	ioutil.WriteFile(filepath.Join(dir, "/pids.max"), []byte("20"), 0700)
-	ioutil.WriteFile(filepath.Join(dir+"/", "memory.max"), []byte(M_max+"M"), 0700)
+	ioutil.WriteFile(filepath.Join(dir, "/memory.max"), []byte(M_max+"M"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/notify_on_release"), []byte("1"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/cgroup.procs"), []byte(strconv.Itoa(os.Getpid())), 0700)
 
