@@ -1,8 +1,16 @@
-# use ubuntu:20.04 as the base image
-FROM ubuntu:20.04 
+FROM python:3.10.6
 
-# copy script from the current directory on the host to /root of container
-COPY ./script.sh /root/
+ENV PYTHONUNBUFFERED 1
 
-# run the script on startup
-CMD ["/root/script.sh"]
+WORKDIR /code
+
+# COPY requirements.txt /code/
+# RUN pip install -r requirements.txt
+
+COPY . /code/
+
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+EXPOSE 9999
+
+# Start the HTTP server when the container launches
+CMD [ "python", "Server.py" ]

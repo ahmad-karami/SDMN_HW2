@@ -57,7 +57,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
 
 
-IP = '192.168.119.128'
+IP = '172.17.0.2'
 PORT = 9999
 server = HTTPServer((IP,PORT),MyHandler)
 print(f"server is working on{IP}://{PORT}")
