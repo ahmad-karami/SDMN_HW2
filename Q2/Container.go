@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
+	//"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,7 +16,8 @@ func main() {
 	case "child":
 		child(os.Args[2], os.Args[3])
 	default:
-		Dir(os.Args[1])
+		extractFile(os.Args[1])
+
 		namespace(os.Args[1])
 		// Container := os.Args[1]
 	}
@@ -75,6 +76,9 @@ func child(Container string, M_max string) {
 func Cgroup(M_max string) {
 
 	dir := "/sys/fs/cgroup/SDMN"
+	os.RemoveAll(dir)
+
+	os.Mkdir(dir, 0777)
 
 	// ioutil.WriteFile(filepath.Join(dir, "/pids.max"), []byte("20"), 0700)
 	ioutil.WriteFile(filepath.Join(dir, "/memory.max"), []byte(M_max+"M"), 0700)
@@ -83,88 +87,75 @@ func Cgroup(M_max string) {
 
 }
 
-func Dir(Container string) {
+// func Dir(Container string) {
 
-	// Container := "container"
+// 	Bin := Container + "/bin"
+// 	// Lib := Container + "/lib/x86_64-linux-gnu"
+// 	Lib := Container + "/lib/x86_64-linux-gnu/"
 
-	Bin := Container + "/bin"
-	Lib := Container + "/lib"
-	Lib64 := Container + "/lib64"
-	Proc := Container + "/proc"
-	Home := Container + "/home"
-	// make directories
+// 	// exec files what we need in new root file system
+// 	Copy("/bin/ip", Bin)
+
+// 	// library files for exec files
+// 	// libc.so.6
+// 	// /lib/x86_64-linux-gnu/
+// 	Copy("/lib/x86_64-linux-gnu/libbpf.so.0", Lib)
+// 	Copy("/lib/x86_64-linux-gnu/libelf.so.1", Lib)
+// 	Copy("/lib/x86_64-linux-gnu/libmnl.so.0", Lib)
+// 	Copy("/lib/x86_64-linux-gnu/libbsd.so.0", Lib)
+// 	Copy("/lib/x86_64-linux-gnu/libcap.so.2", Lib)
+// 	// Copy("/lib/x86_64-linux-gnu/libc.so.6", Lib)
+// 	// Copy("/lib/x86_64-linux-gnu/libz.so.1", Lib)
+// 	Copy("/lib/x86_64-linux-gnu/libmd.so.0", Lib)
+// 	// Copy("", Lib)
+// }
+
+// func Copy(sourcePath string, destDir string) {
+
+// 	// Open the source file
+// 	sourceFile, _ := os.Open(sourcePath)
+
+// 	defer sourceFile.Close()
+
+// 	// Get the destination file path
+// 	destPath := filepath.Join(destDir, filepath.Base(sourcePath))
+
+// 	// Create the destination file
+// 	destFile, _ := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+
+// 	defer destFile.Close()
+
+// 	// Copy the contents of the source file to the destination file
+// 	io.Copy(destFile, sourceFile)
+// }
+
+func file_sys() {
+	path := "/home/mr_king/projects/SDMN/"
+	file_path := "/home/mr_king/projects/SDMN/ubuntu-base-20.04.2-base-amd64.tar.gz"
+	file_url := "http://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/ubuntu-base-20.04.2-base-amd64.tar.gz"
+	if _, err := os.Stat(file_path); os.IsNotExist(err) {
+		fmt.Printf("ubuntu:20.04 Filesys does not exist\n")
+		cmd := exec.Command("wget", "-P", path, file_url)
+		cmd.Run()
+		fmt.Printf("File downloaded\n")
+	} //else {
+	// 	fmt.Printf("ubuntu:20.04 Filesys exists\n")
+	// }
+}
+
+func extractFile(Container string) {
+	file_sys()
 	os.Mkdir(Container, 0777)
-	os.Mkdir(Bin, 0777)
-	os.Mkdir(Lib, 0777)
-	os.Mkdir(Lib64, 0777)
-	os.Mkdir(Proc, 0777)
-	os.Mkdir(Proc, 0777)
-	os.Mkdir(Home, 0777)
-	// make it like ubuntu 20.04 file system
-	os.Mkdir(Container+"/dev", 0777)
-	os.Mkdir(Container+"/lib32", 0777)
-	os.Mkdir(Container+"/libx32", 0777)
-	os.Mkdir(Container+"/mnt", 0777)
-	os.Mkdir(Container+"/run", 0777)
-	os.Mkdir(Container+"/var", 0777)
-	os.Mkdir(Container+"/boot", 0777)
-	os.Mkdir(Container+"/etc", 0777)
-	os.Mkdir(Container+"/media", 0777)
-	os.Mkdir(Container+"/opt", 0777)
-	os.Mkdir(Container+"/root", 0777)
-	os.Mkdir(Container+"/sbin", 0777)
-	os.Mkdir(Container+"/sys", 0777)
-	os.Mkdir(Container+"/usr", 0777)
+	file_path := "/home/mr_king/projects/SDMN/ubuntu-base-20.04.2-base-amd64.tar.gz"
+	// fmt.Printf("Extracting file %s to %s...\n", file_path, Container)
 
-	// exec files what we need in new root file system
-	Copy("/bin/bash", Bin)
-	Copy("/bin/ls", Bin)
-	Copy("/bin/ip", Bin)
-	Copy("/bin/ps", Bin)
-	Copy("/bin/hostname", Bin)
-	Copy("/bin/sleep", Bin)
+	// Use tar to extract the file
+	cmd := exec.Command("tar", "xzvf", file_path, "-C", Container)
+	// -xzf
+	cmd.Run()
 
-	// library files for exec files
-	Copy("/lib/x86_64-linux-gnu/libpcre2-8.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libc.so.6", Lib)
-	Copy("/lib/x86_64-linux-gnu/libselinux.so.1", Lib)
-	Copy("/lib/x86_64-linux-gnu/libtinfo.so.6", Lib)
-	Copy("/lib/x86_64-linux-gnu/libbpf.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libelf.so.1", Lib)
-	Copy("/lib/x86_64-linux-gnu/libmnl.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libbsd.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libcap.so.2", Lib)
-	Copy("/lib/x86_64-linux-gnu/libz.so.1", Lib)
-	Copy("/lib/x86_64-linux-gnu/libmd.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libbsd.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libprocps.so.8", Lib)
-	Copy("/lib/x86_64-linux-gnu/liblzma.so.5", Lib)
-	Copy("/lib/x86_64-linux-gnu/libzstd.so.1", Lib)
-	Copy("/lib/x86_64-linux-gnu/liblz4.so.1", Lib)
-	Copy("/lib/x86_64-linux-gnu/libgcrypt.so.20", Lib)
-	Copy("/lib/x86_64-linux-gnu/libgpg-error.so.0", Lib)
-	Copy("/lib/x86_64-linux-gnu/libsystemd.so.0", Lib)
-	// Copy("", Lib)
-	Copy("/lib64/ld-linux-x86-64.so.2", Lib64)
-	Copy("~/.bashrc", Home)
+	fmt.Printf("File %s extracted successfully!\n", Container)
+	// Dir(Container)
 }
 
-func Copy(sourcePath string, destDir string) {
-
-	// Open the source file
-	sourceFile, _ := os.Open(sourcePath)
-
-	defer sourceFile.Close()
-
-	// Get the destination file path
-	destPath := filepath.Join(destDir, filepath.Base(sourcePath))
-
-	// Create the destination file
-	destFile, _ := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-
-	defer destFile.Close()
-
-	// Copy the contents of the source file to the destination file
-	io.Copy(destFile, sourceFile)
-
-}
+// libelf.so.1
