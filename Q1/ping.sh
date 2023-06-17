@@ -1,4 +1,5 @@
 echo "ping from $1 to $2"
+
 if [ "$1" = "node1" ]
 then
 	if [ "$2" = "router" ]
