@@ -26,7 +26,9 @@ func main() {
 func namespace(Container string) {
 	fmt.Printf("Running main %v as %d\n", os.Args[1:], os.Getpid())
 
-	//define command
+	//define commands
+
+	// process inside the manespace
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[1:]...)...)
 
 	// set the standard input, output, and error streams of the command
@@ -49,7 +51,7 @@ func child(Container string, M_max string) {
 	// Container := "container"
 	fmt.Printf("Running child %v as %d\n", os.Args[1:], os.Getpid())
 
-	Cgroup(M_max)
+	Cgroup(Container, M_max)
 	// change the host name
 	syscall.Sethostname([]byte(Container))
 
@@ -73,10 +75,10 @@ func child(Container string, M_max string) {
 
 }
 
-func Cgroup(M_max string) {
+func Cgroup(Container, M_max string) {
 
-	dir := "/sys/fs/cgroup/SDMN"
-	os.RemoveAll(dir)
+	dir := "/sys/fs/cgroup/" + Container
+	// os.RemoveAll(dir)
 
 	os.Mkdir(dir, 0777)
 
@@ -131,6 +133,7 @@ func Cgroup(M_max string) {
 
 func file_sys() {
 	path := "/home/mr_king/projects/SDMN/"
+
 	file_path := "/home/mr_king/projects/SDMN/ubuntu-base-20.04.2-base-amd64.tar.gz"
 	file_url := "http://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/ubuntu-base-20.04.2-base-amd64.tar.gz"
 	if _, err := os.Stat(file_path); os.IsNotExist(err) {
