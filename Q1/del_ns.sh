@@ -17,5 +17,7 @@ ip link delete veth_nsr_br1
 ip link delete veth_nsr_br2
 ip link delete veth_nsr_br3
 ip link delete veth_nsr_br4
-##ip link delete veth_ns1_br1
+
+#ip link delete veth_ns1_br1
+
 echo "all deleted"
