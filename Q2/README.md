@@ -1,4 +1,4 @@
-# 1. Running code
+# Running code
 my code is in golang and to run the file we use this command:
 '''
 go run Container.go <container_name> <memory_limit_in_MB>
