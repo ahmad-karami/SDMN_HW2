@@ -54,7 +54,7 @@ func child(Container string, M_max string) {
 	Cgroup(Container, M_max)
 	// change the host name
 	syscall.Sethostname([]byte(Container))
-
+	Ip()
 	syscall.Chroot(Container)
 	syscall.Chdir("/")
 	syscall.Mount("proc", "proc", "proc", 0, "")
@@ -162,3 +162,8 @@ func extractFile(Container string) {
 }
 
 // libelf.so.1
+func Ip() {
+	cmd := exec.Command("ip", "addr")
+	out, _ := cmd.Output()
+	fmt.Println(string(out))
+}

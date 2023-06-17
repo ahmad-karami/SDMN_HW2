@@ -17,3 +17,6 @@ in cgroup function I make a directory for each of my containers and assign some 
 
 ## file_sys & extractFile func
 my code look for the ubuntu:20.04 file system in specific folder if it dosen't exeist it will download it and after that it will extract the downloaded file to the folder that is for the container.
+
+## Ip func
+run the ip addr command and show the output
